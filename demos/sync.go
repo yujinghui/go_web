@@ -4,14 +4,13 @@ import "fmt"
 import "time"
 import "sync"
 
-
-func main(){
+func main() {
 	var wg sync.WaitGroup
-	for i:=1; i < 10; i++ {
+	for i := 1; i < 10; i++ {
 		wg.Add(1)
-		go func(i int){
+		go func(i int) {
 			time.Sleep(time.Second)
-			fmt.Println("this is the goroutine-" , i)
+			fmt.Println("this is the goroutine-", i)
 			wg.Done()
 		}(i)
 	}

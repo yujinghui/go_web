@@ -3,21 +3,20 @@ package main
 import "fmt"
 import "time"
 
+func main() {
+	timeout := make(chan bool)
+	cha := make(chan int)
 
-func main(){
-	timeout:=make(chan bool)
-	cha:=make(chan int)
-
-	go func(){
+	go func() {
 		time.Sleep(time.Second * 3)
-		timeout<-true
+		timeout <- true
 	}()
 
-		for i:=1; i < 10; i++ {
-	go func(){
-			cha<-i
-	}()
-		}
+	for i := 1; i < 10; i++ {
+		go func() {
+			cha <- i
+		}()
+	}
 	for {
 		select {
 		case <-cha:
