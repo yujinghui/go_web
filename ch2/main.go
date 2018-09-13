@@ -1,26 +1,38 @@
 package main
 
 import (
+	"fmt"
+	"html/template"
 	"net/http"
-	"time"
 )
 
-func main() {
-	mux := http.NewServeMux()
-	files := http.FileServer(http.Dir(config.Static))
-	mux.Handle("/public", http.StripPrefix("/static/", files))
-	mux.HandleFunc("/", index)
-	mux.HandleFunc("/error", err)
-	mux.HandleFunc("/login", login)
-	mux.HandleFunc("/logout", logout)
-
-	server := &http.Server{
-		Addr:           config.Addr,
-		Handler:        mux,
-		ReadTimeout:    time.Duration(config.ReadTimeout * int64(time.Second)),
-		WriteTimeout:   time.Duration(config.WriteTimeout * int64(time.Second)),
-		MaxHeaderBytes: 1 << 20,
+func sayHelloName(writer http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	fmt.Println(r.Form)
+	fmt.Println("path: ", r.URL.Path)
+	fmt.Println("scheme:", r.URL.Scheme)
+	fmt.Println(r.Form["url_long"])
+	for k, v := range r.Form {
+		fmt.Println("key", k)
+		fmt.Println("value", v)
 	}
+	fmt.Fprintf(writer, "Hello yujinghui")
+}
 
-	server.ListenAndServe()
+func index(writer http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		t, val := template.ParseFiles("template/index.gtpl")
+		fmt.Println(val)
+		t.Execute(writer, nil)
+	} else {
+		r.ParseForm()
+		fmt.Println(r.Form["username"])
+		fmt.Println(r.Form["password"])
+	}
+}
+
+func main() {
+	http.HandleFunc("/", index)
+	http.HandleFunc("/say", sayHelloName)
+	http.ListenAndServe(":8888", nil)
 }
