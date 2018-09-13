@@ -1,9 +1,11 @@
 package main
 
 import (
+	"time"
 	"fmt"
 	"html/template"
 	"net/http"
+	"strconv"
 )
 
 func sayHelloName(writer http.ResponseWriter, r *http.Request) {
@@ -26,8 +28,14 @@ func index(writer http.ResponseWriter, r *http.Request) {
 		t.Execute(writer, nil)
 	} else {
 		r.ParseForm()
-		fmt.Println(r.Form["username"])
+		fmt.Println(r.Form["username"][0])
+		fmt.Println(len(r.Form["username"][0]))
 		fmt.Println(r.Form["password"])
+		fmt.Println(r.Form["vacation"][0])
+		fmt.Println(r.Form["interest"][1])
+		fmt.Println(time.Now())
+		intage, err := strconv.Atoi(r.Form.Get("age"))
+		fmt.Println(intage, err)
 	}
 }
 
