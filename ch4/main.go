@@ -3,12 +3,22 @@ package main
 import (
 	"database/sql"
 	"fmt"
+	"goWeb/ch4/session"
 	"html/template"
 	"net/http"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 )
+
+var globalSessionManager *session.SessionManager
+
+func init() {
+	globalSessionManager, err := session.NewManager("memory","gosessionid",3600)
+	if err != nil {
+		panic(err)
+	}
+}
 
 func sayHelloName(writer http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
