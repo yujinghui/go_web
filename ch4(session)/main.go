@@ -52,7 +52,7 @@ func index(writer http.ResponseWriter, r *http.Request) {
 		}
 		_, err1 := res.LastInsertId()
 		if err1 != nil {
-			fmt.Println("stmt : %s", err)
+
 			panic(err.Error())
 		}
 	}
