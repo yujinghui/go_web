@@ -1,33 +1,75 @@
 package memory
 
 import (
-	"container/list"
+	"containers/list"
 	"sync"
+	""
 )
-type 	Provider struct {
+type Provider struct {
 	lock sync.Mutex
 	sessions map[string]*list.Element
-	list *list.list
+	list *list
 }
 var pder = &Provider{list: list.New()}
 
-func (pder *Provider) SessionStart(sid string) (Session, error) {
-
-	return nil
+func (pder *Provider) SessionInit(sid string) (Session, error) {
+	pder.lock.Lock()
+	defer pder.lock.Lock()
+	v := make(map[interface{}]interface{}, 0)
+	newsess := &SessionStore{sid:sid, timeAccessed:time.Now(), value:v}
+	element := pder.list.PushBack(newsess)
+	return newsess, nil 
 }
 
 func (pder *Provider) SessionRead(sid string) (Session, error) {
-	return nil
+	if element, ok := pder.sessions[sid]; ok {
+		return element.value.(*SessionStore), nil
+	} else {
+		return SessionInit(sid)
+	}
+	return  nil, nil
 }
 
 func (pder *Provider) SessionDestory(sid string) error {
+	if element, err = pder.sessions[sid]; err {
+		delete(pder.sessions, sid)
+		pder.list.Remove(element)
+	}
 	return nil
 }
 
 func (pder *Provider) SessionGC(maxlifetime int64) {
+	pder.lock.Lock()
+	defer pder.lock.Unlock()
+	for {
+		element := pder.list.Back()
+		if element == nil {
+			break
+		}
 
+		if element.Valve.(*SessionStore).timeAccessed.Unix() + maxlifetime < time.Now().Unix() {
+			delete(pder.sessions, element.Valve(*SessionStore).sid)
+		} else {
+			break
+		}
+	}
 }
 
+func (pder *Provider) SessionUpdate(sid string) error {
+	pder.lock.Lock()
+	defer pder.lock.Unlock()
+	if element， ok = pder.sessions[sid]; ok {
+		element.Valve.(*SessionStore).timeAccessed = time.Now()
+		pder.list.moveToFront(element)
+		return nil
+	}
+	return nil
+}
+
+func init(){
+	pder.sessions = make(map[string]*list.Element, 0)
+	session.Register("memory", pder)
+}
 type SessionStore struct {
 	sid string
 	timeAccessed time.Time
