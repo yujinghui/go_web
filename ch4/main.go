@@ -3,18 +3,21 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	"goWeb/ch4/session"
+	session "goWeb/ch4/session"
 	"html/template"
 	"net/http"
 	"time"
 
+	memory "goWeb/ch4/memory"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 var globalSessionManager *session.SessionManager
+var err error
 
 func init() {
-	globalSessionManager, err := session.NewManager("memory","gosessionid",3600)
+	memory.Init()
+	globalSessionManager, err = session.NewManager("memory","gosessionid",3600)
 	if err != nil {
 		panic(err)
 	}
